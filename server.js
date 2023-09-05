@@ -10,38 +10,41 @@ app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 
 app.get('/abc', function (req, res) {
-    const jsonData = fs.readFileSync('./test.json')
+    const jsonData = JSON.parse(fs.readFileSync('./test.json'));
     //fs는 비동기처리를 필요로 하지않는다 알아서 로딩이 전부되야지만 실행시키기 때문
-    res.send(JSON.parse(jsonData))
+    res.send(jsonData)
     //대문자 주의 > 문서가아니라 내용으로보기위해 한번 변경한것
 })
 
 
 //여러개를 만들수 있음
-app.get('/abc/:id', function (req, res) {
-    const jsonData = fs.readFileSync('./test.json')
-    const data = JSON.parse(jsonData);
+app.delete('/abc/:id', function (req, res) {
+    const jsonData = JSON.parse(fs.readFileSync('./test.json'));
 
-    console.log(req.params)
     const {id} = req.params;
-    const aaa = data.filter(n=>n.id == id)
+    console.log(id);
+    const delData = jsonData.filter(n=>n.id != id)
     //fs는 비동기처리를 필요로 하지않는다 알아서 로딩이 전부되야지만 실행시키기 때문
-    res.send(aaa)
+    fs.writeFileSync('./test.json',JSON.stringify(delData))
+
+    res.send(delData)
     //대문자 주의 > 문서가아니라 내용으로보기위해 한번 변경한것
 })
 
 
 
 app.post('/insert', function (req, res) {
-    fs.writeFileSync('./test.json',JSON.stringify(req.body))
+    const jsonData = JSON.parse(fs.readFileSync('./test.json'))
+    let data = [...jsonData, {"id":jsonData.length, ...req.body}]
+    fs.writeFileSync('./test.json',JSON.stringify(data))
                                     //Json 형식으로 만들어줌 > front에서 보내준내용이 req.body로 들어감
 
 
-    res.send('성공');
+    res.send(data);
     //요청작업시 샌드필수 - 없을시 로딩 길어짐
 })
 
 
 
-app.listen(3030)
-//http://localhost:3030/
+app.listen(3000)
+//http://localhost:3000/
